@@ -17,4 +17,4 @@ steps:
     - echo "You can call the secrets like this examples below."
     - echo $USERNAME
     - echo $PASSWORD
-    - echo "In both cases, and for security
+    - echo "In both cases, and for security"
