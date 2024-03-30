@@ -13,3 +13,8 @@ steps:
       repo: xhelliom/doc.wetter.land
       tags: latest
       Dockerfile: ./dockerfile
+    commands:
+    - echo "You can call the secrets like this examples below."
+    - echo $USERNAME
+    - echo $PASSWORD
+    - echo "In both cases, and for security
