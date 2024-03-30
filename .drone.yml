@@ -5,11 +5,6 @@ name: default
 steps:
   - name: docker-build
     image: plugins/docker
-    environment:
-      USERNAME:
-        from_secret: docker_username
-      PASSWORD:
-        from_secret: docker_password
     settings:
       username: 
         from_secret: docker_username
@@ -18,8 +13,3 @@ steps:
       repo: xhelliom/doc.wetter.land
       tags: latest
       Dockerfile: ./dockerfile
-    commands:
-    - echo "You can call the secrets like this examples below."
-    - echo $USERNAME
-    - echo $PASSWORD
-    - echo "In both cases, and for security"
