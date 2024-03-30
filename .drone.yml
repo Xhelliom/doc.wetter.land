@@ -1,0 +1,13 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: docker-build
+    image: plungins/docker
+    settings:
+      username: xhelliom
+      password: 7xUehHr$9Jjl
+      repo: xhelliom/doc.wetter.land
+      tags: latest
+      Dockerfile: ./dockerfile
