@@ -4,7 +4,7 @@ name: default
 
 steps:
   - name: docker-build
-    image: plungins/docker
+    image: plugins/docker
     settings:
       username: xhelliom
       password: 7xUehHr$9Jjl
