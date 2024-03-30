@@ -1,3 +1,4 @@
+[![Build Status](https://drone.wetter.land/api/badges/Xhelliom/doc.wetter.land/status.svg)](https://drone.wetter.land/Xhelliom/doc.wetter.land)
 # Website
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
