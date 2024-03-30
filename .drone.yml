@@ -5,6 +5,11 @@ name: default
 steps:
   - name: docker-build
     image: plugins/docker
+    environment:
+      USERNAME:
+        from_secret: docker_username
+      PASSWORD:
+        from_secret: docker_password
     settings:
       username: 
         from_secret: docker_username
