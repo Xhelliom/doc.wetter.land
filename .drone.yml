@@ -13,6 +13,5 @@ steps:
       repo: xhelliom/doc-wetter-land
       tags: 1.0.1
       Dockerfile: ./dockerfile
-      platforms:
-        - linux/amd64
+      platform:
         - linux/arm64
