@@ -4,32 +4,30 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: 'Cluster Kubernetes',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Toutes les infos sur la création de mon cluster k3S, me permet de me rappeler de ce que j'ai fait, des infos sur le déploiement de mon cluster, etc... 
+        Peut-être ça aideras quelqu'un à faire un cluster comme le miens un jour.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Domotique',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Beaucoup d'information sur le déploiement de Home Assistant, un peu de hardware.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Et d\'autres choses aussi',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Tout ce que je trouve interessant à documenter.
       </>
     ),
   },
