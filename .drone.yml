@@ -11,5 +11,8 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.0
+      tags: 1.0.1
       Dockerfile: ./dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
