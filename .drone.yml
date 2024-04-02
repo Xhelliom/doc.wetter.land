@@ -11,5 +11,5 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.4
+      tags: 1.0.5
       Dockerfile: ./dockerfile
