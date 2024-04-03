@@ -15,7 +15,7 @@ steps:
       Dockerfile: ./dockerfile
 trigger:
   branch:
-  - main
+  - main2
   event:
     exclude:
     - pull_request
