@@ -1,11 +1,11 @@
 steps:
-  # - name: build-amd
-  #   image: codeberg.org/woodpecker-plugins/node-pm
-  #   settings:
-  #     run: build # script name
-  #     with: pnpm # if `with` is set, enforce to use this package manager
-  #     frozen_lockfile: true # recommended
-  #     ignore_node_modules: true # recommended
+  - name: build
+    image: codeberg.org/woodpecker-plugins/node-pm
+    settings:
+      run: build # script name
+      with: pnpm # if `with` is set, enforce to use this package manager
+      frozen_lockfile: true # recommended
+      ignore_node_modules: true # recommended
 
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
