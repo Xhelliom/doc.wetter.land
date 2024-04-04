@@ -13,6 +13,8 @@ steps:
       Dockerfile: ./dockerfile
     backend_options:
       kubernetes:
+        securityContext:
+          privileged: true
         resources:
           requests:
             memory: 200Mi
@@ -20,7 +22,7 @@ steps:
           limits:
             memory: 400Mi
             cpu: 1000m
-when:
-  branch:
-  - main
+    when:
+      branch:
+      - main
 # test
