@@ -4,7 +4,7 @@ steps:
     settings:
       run: build # script name
       with: pnpm # if `with` is set, enforce to use this package manager
-      frozen_lockfile: true # recommended
+      frozen_lockfile: false # recommended
       ignore_node_modules: true # recommended
 
   - name: publish_amd
