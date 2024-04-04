@@ -47,4 +47,4 @@
 # # Stage 4: Serve the static site.
 FROM lipanski/docker-static-website:latest as website
 ## Copy the Docusaurus build output.
-COPY /opt/docusaurus/build /home/static
+COPY /build /home/static
