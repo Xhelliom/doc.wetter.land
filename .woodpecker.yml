@@ -1,5 +1,13 @@
 steps:
-  - name: publish_armd
+  # - name: build-amd
+  #   image: codeberg.org/woodpecker-plugins/node-pm
+  #   settings:
+  #     run: build # script name
+  #     with: pnpm # if `with` is set, enforce to use this package manager
+  #     frozen_lockfile: true # recommended
+  #     ignore_node_modules: true # recommended
+
+  - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
     settings:
@@ -9,30 +17,7 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.7
-      Dockerfile: ./dockerfile
-    backend_options:
-      kubernetes:
-        securityContext:
-          privileged: true
-        resources:
-          requests:
-            memory: 200Mi
-            cpu: 100m
-          limits:
-            memory: 400Mi
-            cpu: 1000m
-  - name: publish_arm
-    image: woodpeckerci/plugin-docker-buildx
-    privileged: true
-    settings:
-      platforms: linux/arm64/v8
-      username: 
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      repo: xhelliom/doc-wetter-land
-      tags: 1.0.7
+      tags: 1.0.7-amd
       Dockerfile: ./dockerfile
     backend_options:
       kubernetes:
@@ -48,4 +33,29 @@ steps:
     when:
       branch:
       - main
-# test
+  - name: publish_arm
+    image: woodpeckerci/plugin-docker-buildx
+    privileged: true
+    settings:
+      platforms: linux/arm64/v8
+      username: 
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: xhelliom/doc-wetter-land
+      tags: 1.0.7-arm
+      Dockerfile: ./dockerfile
+    backend_options:
+      kubernetes:
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 100m
+          limits:
+            memory: 400Mi
+            cpu: 1000m
+    when:
+      branch:
+      - main
