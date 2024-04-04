@@ -1,25 +1,15 @@
-# steps:
-#   - name: publish
-#     image: woodpeckerci/plugin-docker-buildx
-#     settings:
-#       platforms: linux/amd64,linux/arm64/v8
-#       username: 
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       repo: xhelliom/doc-wetter-land
-#       tags: 1.0.7
-#       Dockerfile: ./dockerfile
-# when:
-#   branch:
-#   - main
-
-
 steps:
-  - name: 'My kubernetes step'
-    image: alpine
-    commands:
-      - echo "Hello world"
+  - name: publish
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      platforms: linux/amd64,linux/arm64/v8
+      username: 
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: xhelliom/doc-wetter-land
+      tags: 1.0.7
+      Dockerfile: ./dockerfile
     backend_options:
       kubernetes:
         resources:
@@ -29,3 +19,6 @@ steps:
           limits:
             memory: 400Mi
             cpu: 1000m
+when:
+  branch:
+  - main
