@@ -1,9 +1,32 @@
 steps:
-  - name: publish
+  - name: publish_armd
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
     settings:
-      platforms: linux/amd64,linux/arm64/v8
+      platforms: linux/amd64
+      username: 
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: xhelliom/doc-wetter-land
+      tags: 1.0.7
+      Dockerfile: ./dockerfile
+    backend_options:
+      kubernetes:
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 100m
+          limits:
+            memory: 400Mi
+            cpu: 1000m
+  - name: publish_arm
+    image: woodpeckerci/plugin-docker-buildx
+    privileged: true
+    settings:
+      platforms: linux/arm64/v8
       username: 
         from_secret: docker_username
       password:
