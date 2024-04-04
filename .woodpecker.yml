@@ -6,7 +6,11 @@ steps:
       with: pnpm # if `with` is set, enforce to use this package manager
       frozen_lockfile: false # recommended
       ignore_node_modules: true # recommended
-
+  - name: test
+    image: codeberg.org/woodpecker-plugins/node-pm
+    settings:
+      run: serve # script name
+      with: npm # if `with` is set, enforce to use this package manager
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
