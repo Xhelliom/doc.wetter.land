@@ -6,6 +6,31 @@ steps:
       with: pnpm # if `with` is set, enforce to use this package manager
       frozen_lockfile: false # not recommended in false
       ignore_node_modules: true # recommended
+    backend_options:
+      kubernetes:
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 100m
+          limits:
+            memory: 400Mi
+            cpu: 1000m
+  - name: build
+    image: codeberg.org/woodpecker-plugins/node-pm
+    settings:
+      run: build # script name
+      with: pnpm # if `with` is set, enforce to use this package manager
+      frozen_lockfile: false # not recommended in false
+      ignore_node_modules: true # recommended
+    backend_options:
+      kubernetes:
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 100m
+          limits:
+            memory: 400Mi
+            cpu: 1000m
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
@@ -29,9 +54,7 @@ steps:
           limits:
             memory: 400Mi
             cpu: 1000m
-    when:
-      branch:
-      - main
+
   - name: publish_arm
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
@@ -55,6 +78,3 @@ steps:
           limits:
             memory: 400Mi
             cpu: 1000m
-    when:
-      branch:
-      - main
