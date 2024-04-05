@@ -15,13 +15,11 @@ steps:
           limits:
             memory: 400Mi
             cpu: 1000m
-  - name: build
+  - name: test
     image: codeberg.org/woodpecker-plugins/node-pm
     settings:
-      run: build # script name
-      with: pnpm # if `with` is set, enforce to use this package manager
-      frozen_lockfile: false # not recommended in false
-      ignore_node_modules: true # recommended
+      run: serve # script name
+      with: npm # if `with` is set, enforce to use this package manager
     backend_options:
       kubernetes:
         resources:
