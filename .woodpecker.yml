@@ -3,23 +3,23 @@ steps:
     image: codeberg.org/woodpecker-plugins/node-pm
     settings:
       run: build # script name
-      with: npm # if `with` is set, enforce to use this package manager
+      #with: npm # if `with` is set, enforce to use this package manager
       frozen_lockfile: false # not recommended in false
       ignore_node_modules: true # recommended
     backend_options:
       kubernetes:
         resources:
           requests:
-            memory: 200Mi
-            cpu: 100m
+            memory: 500Mi
+            cpu: 400m
           limits:
-            memory: 400Mi
-            cpu: 1000m
+            memory: 2000Mi
+            cpu: 2000m
   - name: test
     image: codeberg.org/woodpecker-plugins/node-pm
     settings:
       run: serve # script name
-      with: npm # if `with` is set, enforce to use this package manager
+      #with: npm # if `with` is set, enforce to use this package manager
     backend_options:
       kubernetes:
         resources:
