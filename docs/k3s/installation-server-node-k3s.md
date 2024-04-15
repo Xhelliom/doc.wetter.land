@@ -1,11 +1,12 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Installation de quelques dépendances : 
 
-`apt install curl`
-
+```bash
+apt install curl open-iscsi nfs-common
+```
 # configuration du réseau
 
 ```bash
