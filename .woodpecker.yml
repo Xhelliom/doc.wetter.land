@@ -15,20 +15,20 @@ steps:
           limits:
             memory: 2000Mi
             cpu: 2000m
-  - name: test
-    image: codeberg.org/woodpecker-plugins/node-pm
-    settings:
-      run: serve # script name
-      #with: npm # if `with` is set, enforce to use this package manager
-    backend_options:
-      kubernetes:
-        resources:
-          requests:
-            memory: 200Mi
-            cpu: 100m
-          limits:
-            memory: 400Mi
-            cpu: 1000m
+  # - name: test
+  #   image: codeberg.org/woodpecker-plugins/node-pm
+  #   settings:
+  #     run: serve # script name
+  #     #with: npm # if `with` is set, enforce to use this package manager
+  #   backend_options:
+  #     kubernetes:
+  #       resources:
+  #         requests:
+  #           memory: 200Mi
+  #           cpu: 100m
+  #         limits:
+  #           memory: 400Mi
+  #           cpu: 1000m
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
