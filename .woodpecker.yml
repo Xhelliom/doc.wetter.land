@@ -39,7 +39,7 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.7
+      tags: 1.0.8
       Dockerfile: ./dockerfile
     backend_options:
       kubernetes:
@@ -63,7 +63,7 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.7
+      tags: 1.0.8
       Dockerfile: ./dockerfile
     backend_options:
       kubernetes:
