@@ -31,9 +31,14 @@ Création du fichier de configuration pour un serveur k3s :
 ```yaml
 # k3s agent config file to store in /etc/rancher/k3s/config.yaml
 
-server: "https://192.168.1.120:6443" # ip du loadbalancer nginx
+server: "https://192.168.1.110:6443" # ip du loadbalancer nginx
 token: "K1032a827d886e59693bxxxxxxxxxxxxxxxxxxxxx0e51d8b1e1833cb92::server:e6407563a402axxxxxxxxxxxdc33ce2b0b"
-
+tls-san:
+    - "192.168.1.110"
+    - "192.168.1.121"
+    - "192.168.1.141"
+    - "192.168.1.146"
+    - "192.168.1.147"
 # https-listen-port: 6443
 
 kubelet-arg: "config=/etc/rancher/k3s/kubelet.config"
@@ -48,6 +53,16 @@ disable:
 # protect-kernel-defaults: true
 # secrets-encryption: true
 ```
+
+Quelques informations supplémentaires :
+- `server` : l'adresse IP du loadbalancer nginx
+- `token` : le token du premier serveur k3s
+- `tls-san` : les adresses IP des serveurs k3s (sans ça lorsque les autres serveurs vont essayer de rejoindrel le cluster, une erreur de certificat apparait)
+- `kubelet-arg` : permet de spécifier un fichier de configuration pour le kubelet (pour ajouter des arguments)
+- `node-taint` : permet de tainter le serveur (pour qu'aucun pods ne s'éxécute sur ce serveur par exemple)
+- `disable` : permet de désactiver certains composants (ex: traefik, servicelb, local-storage)
+
+Pour ma part, je préfère avoir le contrôle sur traefik et sur le service de loadbalancer interne à kubernetes (j'utiliserai plus tard metalLB).
 
 Le token se trouve sur le premier serveur :
 
