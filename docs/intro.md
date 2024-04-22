@@ -1,5 +1,6 @@
 ---
 slug: /
+sidebar_position: 1
 title: Documentation de mon infra
 description: Docuemntation autour de l'infra que je met en place si jamais ça peut servir en plus à quelqu'un d'autre.
 ---

@@ -1,5 +1,7 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
+title: Installation d'un loadbalancer NGINX pour K8S
+description: Comment installer un loadbalancer NGINX pour K8S et le configurer pour que les requêtes soient redirigées vers les serveurs k3s.
 ---
 
 # Introduction
