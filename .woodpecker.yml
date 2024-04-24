@@ -4,7 +4,7 @@ steps:
     settings:
       run: build # script name
       with: pnpm # if `with` is set, enforce to use this package manager
-      frozen_lockfile: false # not recommended in false
+      frozen_lockfile: true # not recommended in false
       ignore_node_modules: true # recommended
     backend_options:
       kubernetes:
