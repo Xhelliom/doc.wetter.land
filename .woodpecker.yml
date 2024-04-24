@@ -12,9 +12,9 @@ steps:
           requests:
             memory: 500Mi
             cpu: 400m
-          limits:
-            memory: 800Mi
-            cpu: 800m
+          # limits:
+          #   memory: 800Mi
+          #   cpu: 800m
   # - name: test
   #   image: codeberg.org/woodpecker-plugins/node-pm
   #   settings:
@@ -49,9 +49,9 @@ steps:
           requests:
             memory: 200Mi
             cpu: 100m
-          limits:
-            memory: 400Mi
-            cpu: 1000m
+          # limits:
+          #   memory: 400Mi
+          #   cpu: 1000m
 
   - name: publish_arm
     image: woodpeckerci/plugin-docker-buildx
@@ -73,6 +73,6 @@ steps:
           requests:
             memory: 200Mi
             cpu: 100m
-          limits:
-            memory: 400Mi
-            cpu: 1000m
+          # limits:
+          #   memory: 400Mi
+          #   cpu: 1000m
