@@ -1,20 +1,9 @@
+matrix:
+  TAG:
+    - 1.0.10
+    - latest
+
 steps:
-  # - name: build
-  #   image: codeberg.org/woodpecker-plugins/node-pm
-  #   settings:
-  #     run: build # script name
-  #     with: pnpm # if `with` is set, enforce to use this package manager
-  #     frozen_lockfile: true # not recommended in false
-  #     ignore_node_modules: true # recommended
-  #   backend_options:
-  #     kubernetes:
-  #       resources:
-  #         requests:
-  #           memory: 500Mi
-  #           cpu: 400m
-  #         # limits:
-  #         #   memory: 800Mi
-          #   cpu: 800m
   - name: build
     image: node:20-slim
     commands:
@@ -29,25 +18,10 @@ steps:
         resources:
           requests:
             memory: 500Mi
-            cpu: 400m
+            cpu: 100m
           # limits:
           #   memory: 800Mi
           #   cpu: 800m
-
-  # - name: test
-  #   image: codeberg.org/woodpecker-plugins/node-pm
-  #   settings:
-  #     run: serve # script name
-  #     #with: npm # if `with` is set, enforce to use this package manager
-  #   backend_options:
-  #     kubernetes:
-  #       resources:
-  #         requests:
-  #           memory: 200Mi
-  #           cpu: 100m
-  #         limits:
-  #           memory: 400Mi
-  #           cpu: 1000m
   
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
@@ -59,8 +33,11 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.9
+      tags: ${TAG}
       Dockerfile: ./dockerfile
+    when:
+      - event: push
+        branch: main
     backend_options:
       kubernetes:
         securityContext:
@@ -83,8 +60,11 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: 1.0.9
+      tags: ${TAG}
       Dockerfile: ./dockerfile
+    when:
+      - event: push
+        branch: main
     backend_options:
       kubernetes:
         securityContext:
