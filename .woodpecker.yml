@@ -33,7 +33,9 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: ${CI_COMMIT_TAG},latest
+      tags: 
+        - ${CI_COMMIT_TAG}
+        - latest
       Dockerfile: ./dockerfile
     when:
       - event: push
@@ -60,7 +62,9 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: ${CI_COMMIT_TAG},latest
+      tags:
+        - ${CI_COMMIT_TAG}
+        - latest
       Dockerfile: ./dockerfile
     when:
       - event: push
@@ -78,5 +82,5 @@ steps:
           #   cpu: 1000m
 
 when:
-- event: tag
+- event: push
   branch: main
