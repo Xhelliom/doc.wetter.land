@@ -1,6 +1,6 @@
 ---
 sidebar_position: 4
-title: installation d'une node k3s
+sidebar_label: Installation d'une node k3s
 ---
 
 # Installation de quelques dépendances : 

@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Crétation du cluster k3s (amd et arm)
+sidebar_label: Création du cluster k3s (amd et arm)
 ---
 
 # Prérequis en terme de distribution
