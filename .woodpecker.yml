@@ -1,7 +1,7 @@
-matrix:
-  TAG:
-    - ${CI_COMMIT_TAG}
-    - latest
+# matrix:
+#   TAG:
+#     - ${CI_COMMIT_TAG}
+#     - latest
 
 steps:
   - name: build
@@ -33,7 +33,7 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: ${TAG}
+      tags: ${CI_COMMIT_TAG},latest
       Dockerfile: ./dockerfile
     when:
       - event: push
@@ -60,7 +60,7 @@ steps:
       password:
         from_secret: docker_password
       repo: xhelliom/doc-wetter-land
-      tags: ${TAG}
+      tags: ${CI_COMMIT_TAG},latest
       Dockerfile: ./dockerfile
     when:
       - event: push
