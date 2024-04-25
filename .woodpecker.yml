@@ -76,3 +76,7 @@ steps:
           # limits:
           #   memory: 400Mi
           #   cpu: 1000m
+          
+when:
+- event: tag
+  branch: main
