@@ -18,10 +18,12 @@ steps:
         resources:
           requests:
             memory: 500Mi
-            cpu: 100m
+            cpu: 500m
           # limits:
           #   memory: 800Mi
           #   cpu: 800m
+        nodeSelector:
+          kubernetes.io/hostname: raspberrypi-1
   
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
