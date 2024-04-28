@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+sidebar_label: connexion automatique au compte perso ou pro selon le repo github
 ---
 
 Traduit depuis : [github oanhnn](https://gist.github.com/oanhnn/80a89405ab9023894df7)
