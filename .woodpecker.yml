@@ -10,9 +10,9 @@ steps:
       - corepack enable
       - pnpm install --frozen-lockfile
       - pnpm run build
-    when:
-      - event: tag
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
 #        resources:
@@ -39,9 +39,9 @@ steps:
         - ${CI_COMMIT_TAG}
         - latest
       Dockerfile: ./dockerfile
-    when:
-      - event: tag
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
         securityContext:
@@ -68,9 +68,9 @@ steps:
         - ${CI_COMMIT_TAG}
         - latest
       Dockerfile: ./dockerfile
-    when:
-      - event: tag
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
         securityContext:
