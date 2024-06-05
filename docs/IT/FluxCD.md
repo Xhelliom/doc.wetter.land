@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-sidebar_label: Déployer ses application avec FluxCD
+sidebar_label: Déployer ses applications avec FluxCD
 ---
 
 # Prérequis
