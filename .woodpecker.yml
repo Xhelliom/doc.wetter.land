@@ -11,7 +11,7 @@ steps:
       - pnpm install --frozen-lockfile
       - pnpm run build
     when:
-      - event: push
+      - event: tag
         branch: main
     backend_options:
       kubernetes:
@@ -40,7 +40,7 @@ steps:
         - latest
       Dockerfile: ./dockerfile
     when:
-      - event: push
+      - event: tag
         branch: main
     backend_options:
       kubernetes:
@@ -69,7 +69,7 @@ steps:
         - latest
       Dockerfile: ./dockerfile
     when:
-      - event: push
+      - event: tag
         branch: main
     backend_options:
       kubernetes:
@@ -84,5 +84,5 @@ steps:
           #   cpu: 1000m
 
 when:
-- event: push
+- event: tag
   branch: main
