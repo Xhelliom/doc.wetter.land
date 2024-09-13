@@ -86,6 +86,9 @@ Pour lancer l'installation du serveur (et joindre le cluster):
 
 `curl -sfL https://get.k3s.io | sh -s - --config /etc/rancher/k3s/config.yaml`
 
+Pour installer une version spécifique, par exemple : 
+`curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.29.3+k3s1 sh -s - --config /etc/rancher/k3s/config.yaml`
+
 
 Si on fait des modification sur le fichier de configuration, il faut redémarrer le service k3s :
 `systemctl restart k3s`
