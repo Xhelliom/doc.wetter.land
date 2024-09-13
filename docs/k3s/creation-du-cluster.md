@@ -54,7 +54,7 @@ Exemple de volume NFS monté :
         path: /mnt/xxx
 ```
 
-I faut activer le service rpcbind
+Il faut activer le service rpcbind
 
 ```
 service rpcbind start
@@ -63,3 +63,12 @@ systemctl enable rpcbind
 ```
 
 Si vous ne faites pas ça, les pods ne vont pas pouvoir monter le volume.
+
+
+# Rajouter du Cgroup :
+
+Rajouter à la suite du fichier /boot/cmdline.txt :
+
+```
+cgroup_memory=1 cgroup_enable=memory
+```
