@@ -10,15 +10,15 @@ steps:
       - corepack enable
       - pnpm install --frozen-lockfile
       - pnpm run build
-    when:
-      - event: push
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
-        resources:
-          requests:
-            memory: 500Mi
-            cpu: 500m
+#        resources:
+#          requests:
+#            memory: 500Mi
+ #           cpu: 500m
           # limits:
           #   memory: 800Mi
           #   cpu: 800m
@@ -39,17 +39,17 @@ steps:
         - ${CI_COMMIT_TAG}
         - latest
       Dockerfile: ./dockerfile
-    when:
-      - event: push
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
         securityContext:
           privileged: true
-        resources:
-          requests:
-            memory: 200Mi
-            cpu: 100m
+#        resources:
+#          requests:
+ #           memory: 200Mi
+ #           cpu: 100m
           # limits:
           #   memory: 400Mi
           #   cpu: 1000m
@@ -68,21 +68,21 @@ steps:
         - ${CI_COMMIT_TAG}
         - latest
       Dockerfile: ./dockerfile
-    when:
-      - event: push
-        branch: main
+    # when:
+    #   - event: tag
+    #     branch: main
     backend_options:
       kubernetes:
         securityContext:
           privileged: true
-        resources:
-          requests:
-            memory: 200Mi
-            cpu: 100m
+ #       resources:
+#          requests:
+ #           memory: 200Mi
+ #           cpu: 100m
           # limits:
           #   memory: 400Mi
           #   cpu: 1000m
 
 when:
-- event: push
+- event: tag
   branch: main
