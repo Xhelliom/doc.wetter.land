@@ -15,51 +15,22 @@ steps:
     #     branch: main
     backend_options:
       kubernetes:
-#        resources:
-#          requests:
-#            memory: 500Mi
- #           cpu: 500m
-          # limits:
-          #   memory: 800Mi
-          #   cpu: 800m
+        #        resources:
+        #          requests:
+        #            memory: 500Mi
+        #           cpu: 500m
+        # limits:
+        #   memory: 800Mi
+        #   cpu: 800m
         nodeSelector:
           kubernetes.io/hostname: raspberrypi-1
-  
+
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
-    privileged: true
+    privileged: false
     settings:
       platforms: linux/amd64
-      username: 
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      repo: xhelliom/doc-wetter-land
-      tags: 
-        - ${CI_COMMIT_TAG}
-        - latest
-      Dockerfile: ./dockerfile
-    # when:
-    #   - event: tag
-    #     branch: main
-    backend_options:
-      kubernetes:
-        securityContext:
-          privileged: true
-#        resources:
-#          requests:
- #           memory: 200Mi
- #           cpu: 100m
-          # limits:
-          #   memory: 400Mi
-          #   cpu: 1000m
-
-  - name: publish_arm
-    image: woodpeckerci/plugin-docker-buildx
-    privileged: true
-    settings:
-      platforms: linux/arm64/v8,linux/amd64
-      username: 
+      username:
         from_secret: docker_username
       password:
         from_secret: docker_password
@@ -74,15 +45,44 @@ steps:
     backend_options:
       kubernetes:
         securityContext:
-          privileged: true
- #       resources:
+          privileged: false
+  #        resources:
+  #          requests:
+  #           memory: 200Mi
+  #           cpu: 100m
+  # limits:
+  #   memory: 400Mi
+  #   cpu: 1000m
+
+  - name: publish_arm
+    image: woodpeckerci/plugin-docker-buildx
+    privileged: false
+    settings:
+      platforms: linux/arm64/v8,linux/amd64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: xhelliom/doc-wetter-land
+      tags:
+        - ${CI_COMMIT_TAG}
+        - latest
+      Dockerfile: ./dockerfile
+    # when:
+    #   - event: tag
+    #     branch: main
+    backend_options:
+      kubernetes:
+        securityContext:
+          privileged: false
+  #       resources:
 #          requests:
- #           memory: 200Mi
- #           cpu: 100m
-          # limits:
-          #   memory: 400Mi
-          #   cpu: 1000m
+#           memory: 200Mi
+#           cpu: 100m
+# limits:
+#   memory: 400Mi
+#   cpu: 1000m
 
 when:
-- event: tag
-  branch: main
+  - event: tag
+    branch: main
