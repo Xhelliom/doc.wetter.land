@@ -27,7 +27,7 @@ steps:
 
   - name: publish_amd
     image: woodpeckerci/plugin-docker-buildx
-    privileged: false
+    privileged: true
     settings:
       platforms: linux/amd64
       username:
@@ -45,7 +45,7 @@ steps:
     backend_options:
       kubernetes:
         securityContext:
-          privileged: false
+          privileged: true
   #        resources:
   #          requests:
   #           memory: 200Mi
@@ -56,7 +56,7 @@ steps:
 
   - name: publish_arm
     image: woodpeckerci/plugin-docker-buildx
-    privileged: false
+    privileged: true
     settings:
       platforms: linux/arm64/v8,linux/amd64
       username:
@@ -74,7 +74,7 @@ steps:
     backend_options:
       kubernetes:
         securityContext:
-          privileged: false
+          privileged: true
   #       resources:
 #          requests:
 #           memory: 200Mi
