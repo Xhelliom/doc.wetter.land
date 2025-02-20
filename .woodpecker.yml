@@ -84,5 +84,5 @@ steps:
 #   cpu: 1000m
 
 when:
-  - event: tag
+  - event: push
     branch: main
