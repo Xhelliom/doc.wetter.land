@@ -16,6 +16,136 @@
 sudo nano /usr/local/bin/vpn-monitor.sh
 ```
 
+
+```sh
+#!/bin/bash
+
+# Chemin du fichier de log
+LOG_FILE="/var/log/vpn_monitor_script.log"
+
+# URL Gotify
+GOTIFY_URL="https://gotify.wetter.land/message"
+GOTIFY_TOKEN="VOTRE_TOKEN_GOTIFY"
+
+# Chemin du fichier de statut
+STATUS_FILE="/tmp/vpn_status.tmp"
+
+# Nom du service OpenVPN
+VPN_SERVICE="openvpn3-session@wetterland.service"
+
+# Fonction de log
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
+
+# Fonction d'envoi de notification Gotify
+send_gotify_notification() {
+    local title="$1"
+    local message="$2"
+    local priority="${3:-5}"
+    
+    curl -X POST "$GOTIFY_URL" \
+         -F "token=$GOTIFY_TOKEN" \
+         -F "title=$title" \
+         -F "message=$message" \
+         -F "priority=$priority" 2>/dev/null
+}
+
+# Fonction de vérification de l'état précédent
+check_previous_status() {
+    # Si le fichier de statut n'existe pas, c'est le premier check
+    if [ ! -f "$STATUS_FILE" ]; then
+        return 1
+    fi
+    
+    # Lire le statut précédent
+    local previous_status=$(cat "$STATUS_FILE")
+    
+    # Si le statut précédent était déjà down, ne pas renvoyer de notification
+    if [ "$previous_status" = "down" ]; then
+        return 0
+    fi
+    
+    return 1
+}
+
+# Fonction principale
+main() {
+    log_message "Début du script de monitoring VPN"
+
+    # Vérification de l'état du service
+    systemctl is-active --quiet "$VPN_SERVICE"
+    
+    if [ $? -ne 0 ]; then
+        # VPN est down
+        log_message "Service OpenVPN down"
+        
+        # Enregistrer le statut down
+        echo "down" > "$STATUS_FILE"
+        
+        # Vérifier si on doit envoyer une notification
+        if ! check_previous_status; then
+            # Envoyer une notification haute priorité
+            send_gotify_notification "VPN DOWN" "Le service VPN est actuellement hors service" 8
+        fi
+        
+        # Tentative de restauration
+        log_message "Tentative de restauration du service OpenVPN"
+        systemctl restart "$VPN_SERVICE"
+
+        # Vérification du redémarrage
+        if [ $? -eq 0 ]; then
+            # Attente de quelques secondes pour stabilisation
+            sleep 10
+            
+            # Vérification à nouveau de l'état
+            systemctl is-active --quiet "$VPN_SERVICE"
+            
+            if [ $? -eq 0 ]; then
+                log_message "Service OpenVPN restauré avec succès"
+                
+                # Enregistrer le statut up
+                echo "up" > "$STATUS_FILE"
+                
+                # Montage des systèmes de fichiers
+                log_message "Exécution de mount -a"
+                mount -a
+                
+                if [ $? -eq 0 ]; then
+                    log_message "Montage des systèmes de fichiers réussi"
+                    send_gotify_notification "VPN Restauré" "Service VPN redémarré et montage des systèmes de fichiers effectués"
+                else
+                    log_message "ERREUR : Échec du montage des systèmes de fichiers"
+                    send_gotify_notification "VPN Montage Erreur" "Échec du montage des systèmes de fichiers après restauration VPN" 6
+                    exit 1
+                fi
+            else
+                log_message "ERREUR : Impossible de restaurer le service OpenVPN"
+                send_gotify_notification "VPN Erreur Critique" "Impossible de restaurer le service OpenVPN" 8
+                exit 1
+            fi
+        else
+            log_message "ERREUR : Échec du redémarrage du service OpenVPN"
+            send_gotify_notification "VPN Erreur Redémarrage" "Impossible de redémarrer le service OpenVPN" 7
+            exit 1
+        fi
+    else
+        # VPN est up
+        log_message "Service OpenVPN actif, aucune action requise"
+        
+        # Enregistrer le statut up
+        echo "up" > "$STATUS_FILE"
+        
+        exit 0
+    fi
+}
+
+# Gestion des erreurs
+trap 'log_message "Script interrompu"; exit 1' SIGINT SIGTERM ERR
+
+# Exécution du script
+main
+```
 Collez le contenu du script précédent et remplacez :
 - `GOTIFY_TOKEN` par votre token
 - Ajustez le nom du service VPN si nécessaire
