@@ -1,0 +1,186 @@
+
+# Documentation d'implémentation du script de monitoring VPN
+
+## 📋 Prérequis
+
+- Système Linux avec systemd
+- OpenVPN 3
+- Accès sudo
+- Compte Gotify (optionnel)
+
+## 🚀 Étapes d'installation
+
+### 1. Création du script
+
+```bash
+sudo nano /usr/local/bin/vpn-monitor.sh
+```
+
+Collez le contenu du script précédent et remplacez :
+- `GOTIFY_TOKEN` par votre token
+- Ajustez le nom du service VPN si nécessaire
+
+### 2. Rendre le script exécutable
+
+```bash
+sudo chmod +x /usr/local/bin/vpn-monitor.sh
+```
+
+### 3. Création des fichiers systemd
+
+#### Fichier de service
+
+```bash
+sudo nano /etc/systemd/system/vpn-monitor.service
+```
+
+```ini
+[Unit]
+Description=VPN Monitoring Service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/vpn-monitor.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Fichier timer
+
+```bash
+sudo nano /etc/systemd/system/vpn-monitor.timer
+```
+
+```ini
+[Unit]
+Description=VPN Monitoring Timer
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+### 4. Activation et démarrage
+
+```bash
+# Recharger la configuration systemd
+sudo systemctl daemon-reload
+
+# Activer le timer
+sudo systemctl enable vpn-monitor.timer
+
+# Démarrer le timer
+sudo systemctl start vpn-monitor.timer
+```
+
+## 🔍 Vérification
+
+### Statut du timer
+
+```bash
+sudo systemctl status vpn-monitor.timer
+```
+
+### Logs
+
+```bash
+# Logs systemd
+journalctl -u vpn-monitor.service
+
+# Logs du script
+tail -f /var/log/vpn_monitor_script.log
+```
+
+## 🛠 Personnalisation
+
+### Modification de la fréquence
+
+Dans le fichier `.timer`, modifiez `OnCalendar=*:0/5` :
+- `*:0/5` : toutes les 5 minutes
+- `*:0/10` : toutes les 10 minutes
+- `*-*-* 06:00:00` : une fois par jour à 6h
+
+## 🐞 Dépannage
+
+### Problèmes courants
+
+1. **Permissions**
+   - Assurez-vous que le script est exécutable
+   - Vérifiez les droits d'accès aux fichiers
+
+2. **Notifications Gotify**
+   - Vérifiez le token
+   - Assurez-vous que l'URL est correcte
+   - Testez manuellement avec curl
+
+3. **Service VPN**
+   - Vérifiez le nom exact du service
+   - Confirmez que le service existe
+
+### Test manuel
+
+```bash
+# Exécution manuelle du script
+sudo /usr/local/bin/vpn-monitor.sh
+
+# Vérification des erreurs
+echo $?
+```
+
+## 🔒 Sécurité
+
+- Limitez les permissions du script
+- Protégez le fichier de log
+- Utilisez des tokens sécurisés pour Gotify
+
+```bash
+# Permissions recommandées
+sudo chown root:root /usr/local/bin/vpn-monitor.sh
+sudo chmod 750 /usr/local/bin/vpn-monitor.sh
+```
+
+## 🔧 Maintenance
+
+- Mettez à jour régulièrement le script
+- Surveillez les logs
+- Ajustez la configuration selon vos besoins
+
+## 📦 Annexes
+
+### Variables configurables
+
+- `LOG_FILE` : Chemin du fichier de log
+- `GOTIFY_URL` : URL du serveur Gotify
+- `GOTIFY_TOKEN` : Token d'authentification
+- `VPN_SERVICE` : Nom du service VPN
+
+## 💡 Conseils avancés
+
+- Considérez une redondance VPN
+- Mettez en place des alertes sur plusieurs canaux
+- Automatisez les mises à jour du script
+
+## 📝 Exemple de script complet
+
+```bash
+#!/bin/bash
+
+# Configuration
+LOG_FILE="/var/log/vpn_monitor_script.log"
+GOTIFY_URL="https://gotify.example.com/message"
+GOTIFY_TOKEN="your_token_here"
+VPN_SERVICE="openvpn3-session@wetterland.service"
+
+# Reste du script (comme dans l'exemple précédent)
+...
+```
+
+---
+
+**Note**: Cette documentation est un guide générique. Adaptez-la à votre environnement spécifique.
