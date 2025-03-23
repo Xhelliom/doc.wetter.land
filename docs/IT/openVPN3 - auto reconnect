@@ -44,8 +44,7 @@ send_gotify_notification() {
     local message="$2"
     local priority="${3:-5}"
     
-    curl -X POST "$GOTIFY_URL" \
-         -F "token=$GOTIFY_TOKEN" \
+    curl -X POST ${GOTIFY_URL}/message?token=${GOTIFY_TOKEN \
          -F "title=$title" \
          -F "message=$message" \
          -F "priority=$priority" 2>/dev/null
