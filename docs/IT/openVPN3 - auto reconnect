@@ -1,5 +1,13 @@
+---
+sidebar_position: 3
+sidebar_label: Service de monitoring VPN
+---
 
 # Documentation d'implémentation du script de monitoring VPN
+
+## Objectif
+
+Créer un service systemd qui surveille et restaure automatiquement une connexion VPN sur un serveur distant.
 
 ## 📋 Prérequis
 
@@ -24,14 +32,14 @@ sudo nano /usr/local/bin/vpn-monitor.sh
 LOG_FILE="/var/log/vpn_monitor_script.log"
 
 # URL Gotify
-GOTIFY_URL="https://gotify.wetter.land/message"
+GOTIFY_URL="https://gotify.example.com"
 GOTIFY_TOKEN="VOTRE_TOKEN_GOTIFY"
 
 # Chemin du fichier de statut
 STATUS_FILE="/tmp/vpn_status.tmp"
 
 # Nom du service OpenVPN
-VPN_SERVICE="openvpn3-session@wetterland.service"
+VPN_SERVICE="openvpn3-session@example.service"
 
 # Fonction de log
 log_message() {
@@ -171,11 +179,27 @@ After=network.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/vpn-monitor.sh
-RemainAfterExit=yes
+RemainAfterExit=no
 
 [Install]
 WantedBy=multi-user.target
+Also=vpn-monitor.target
 ```
+
+### Fichier target
+
+```bash
+sudo nano /etc/systemd/system/vpn-monitor.target
+```
+
+```ini
+[Unit]
+Description=VPN Monitoring Target
+BindsTo=vpn-monitor.service
+After=vpn-monitor.service
+```
+[Install]
+WantedBy=timers.target
 
 #### Fichier timer
 
@@ -201,8 +225,9 @@ WantedBy=timers.target
 # Recharger la configuration systemd
 sudo systemctl daemon-reload
 
-# Activer le timer
+# Activer le timer et target
 sudo systemctl enable vpn-monitor.timer
+sudo systemctl enable vpn-monitor.target
 
 # Démarrer le timer
 sudo systemctl start vpn-monitor.timer
@@ -304,7 +329,7 @@ sudo chmod 750 /usr/local/bin/vpn-monitor.sh
 LOG_FILE="/var/log/vpn_monitor_script.log"
 GOTIFY_URL="https://gotify.example.com/message"
 GOTIFY_TOKEN="your_token_here"
-VPN_SERVICE="openvpn3-session@wetterland.service"
+VPN_SERVICE="openvpn3-session@example.service"
 
 # Reste du script (comme dans l'exemple précédent)
 ...
