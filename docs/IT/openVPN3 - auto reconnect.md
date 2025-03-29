@@ -28,18 +28,22 @@ sudo nano /usr/local/bin/vpn-monitor.sh
 ```sh
 #!/bin/bash
 
-# Chemin du fichier de log
+# Configuration
 LOG_FILE="/var/log/vpn_monitor_script.log"
+GOTIFY_URL="https://gotify.wetter.land"
+GOTIFY_TOKEN="votre_token_ici"
+VPN_SERVICE="openvpn3-session@wetterland.service"
+VPN_PROFILE_NAME="wetterland"  # Nom du profil VPN
 
-# URL Gotify
-GOTIFY_URL="https://gotify.example.com"
-GOTIFY_TOKEN="VOTRE_TOKEN_GOTIFY"
+# Option de débogage
+DEBUG=0
 
-# Chemin du fichier de statut
-STATUS_FILE="/tmp/vpn_status.tmp"
-
-# Nom du service OpenVPN
-VPN_SERVICE="openvpn3-session@example.service"
+# Fonction de log de débogage
+debug_log() {
+    if [ "$DEBUG" -eq 1 ]; then
+        log_message "[DEBUG] $1"
+    fi
+}
 
 # Fonction de log
 log_message() {
@@ -52,64 +56,93 @@ send_gotify_notification() {
     local message="$2"
     local priority="${3:-5}"
     
-    curl -X POST ${GOTIFY_URL}/message?token=${GOTIFY_TOKEN \
-         -F "title=$title" \
-         -F "message=$message" \
-         -F "priority=$priority" 2>/dev/null
+    debug_log "Envoi notification Gotify - Titre: $title, Message: $message, Priorité: $priority"
+    
+    curl "${GOTIFY_URL}/message?token=${GOTIFY_TOKEN}" \
+         -F "title=${title}" \
+         -F "message=${message}" \
+         -F "priority=${priority}" 2>/dev/null
 }
 
-# Fonction de vérification de l'état précédent
-check_previous_status() {
-    # Si le fichier de statut n'existe pas, c'est le premier check
-    if [ ! -f "$STATUS_FILE" ]; then
+# Fonction de vérification de la connexion VPN
+check_vpn_connection() {
+    debug_log "Vérification de la connexion VPN"
+    
+    # Utiliser openvpn3 pour lister les sessions
+    local sessions_output
+    sessions_output=$(openvpn3 sessions-list 2>&1)
+    local sessions_exit_code=$?
+    
+    debug_log "Sortie de sessions-list: $sessions_output"
+    debug_log "Code de sortie: $sessions_exit_code"
+    
+    # Vérifier si la commande a réussi
+    if [ $sessions_exit_code -ne 0 ]; then
+        log_message "Erreur lors de la vérification des sessions VPN"
         return 1
     fi
     
-    # Lire le statut précédent
-    local previous_status=$(cat "$STATUS_FILE")
-    
-    # Si le statut précédent était déjà down, ne pas renvoyer de notification
-    if [ "$previous_status" = "down" ]; then
+    # Rechercher une session active pour le profil spécifique
+    if echo "$sessions_output" | grep -q "$VPN_PROFILE_NAME"; then
+        debug_log "Session VPN active trouvée pour $VPN_PROFILE_NAME"
         return 0
+    else
+        debug_log "Aucune session VPN active pour $VPN_PROFILE_NAME"
+        return 1
     fi
+}
+
+# Fonction de restauration de la connexion VPN
+restore_vpn_connection() {
+    log_message "Tentative de restauration de la connexion VPN"
     
-    return 1
+    # Déconnecter toutes les sessions existantes
+    openvpn3 sessions-list | grep Path | while read -r line; do
+        session_path=$(echo "$line" | cut -d: -f2 | xargs)
+        log_message "Déconnexion de la session : $session_path"
+        openvpn3 session-manage --disconnect --path "$session_path"
+    done
+    
+    # Attendre quelques secondes
+    sleep 5
+    
+    # Reconnecter le profil VPN
+    log_message "Reconnexion au profil VPN : $VPN_PROFILE_NAME"
+    openvpn3 session-start --interface "$VPN_PROFILE_NAME"
+    local connect_exit_code=$?
+    
+    if [ $connect_exit_code -eq 0 ]; then
+        log_message "Reconnexion VPN réussie"
+        return 0
+    else
+        log_message "Échec de la reconnexion VPN"
+        return 1
+    fi
 }
 
 # Fonction principale
 main() {
-    log_message "Début du script de monitoring VPN"
-
-    # Vérification de l'état du service
-    systemctl is-active --quiet "$VPN_SERVICE"
+    # Chemin du fichier de statut
+    STATUS_FILE="/tmp/vpn_status.tmp"
     
-    if [ $? -ne 0 ]; then
-        # VPN est down
-        log_message "Service OpenVPN down"
+    debug_log "Début du script de monitoring VPN"
+    log_message "Exécution du script de monitoring VPN"
+
+    # Vérifier la connexion VPN
+    if ! check_vpn_connection; then
+        log_message "Connexion VPN down"
         
         # Enregistrer le statut down
         echo "down" > "$STATUS_FILE"
         
-        # Vérifier si on doit envoyer une notification
-        if ! check_previous_status; then
-            # Envoyer une notification haute priorité
-            send_gotify_notification "VPN DOWN" "Le service VPN est actuellement hors service" 8
-        fi
-        
-        # Tentative de restauration
-        log_message "Tentative de restauration du service OpenVPN"
-        systemctl restart "$VPN_SERVICE"
-
-        # Vérification du redémarrage
-        if [ $? -eq 0 ]; then
-            # Attente de quelques secondes pour stabilisation
+        # Tenter de restaurer la connexion
+        if restore_vpn_connection; then
+            # Attendre la stabilisation
             sleep 10
             
-            # Vérification à nouveau de l'état
-            systemctl is-active --quiet "$VPN_SERVICE"
-            
-            if [ $? -eq 0 ]; then
-                log_message "Service OpenVPN restauré avec succès"
+            # Vérifier à nouveau la connexion
+            if check_vpn_connection; then
+                log_message "Connexion VPN restaurée avec succès"
                 
                 # Enregistrer le statut up
                 echo "up" > "$STATUS_FILE"
@@ -117,32 +150,34 @@ main() {
                 # Montage des systèmes de fichiers
                 log_message "Exécution de mount -a"
                 mount -a
+                local mount_status=$?
                 
-                if [ $? -eq 0 ]; then
+                if [ $mount_status -eq 0 ]; then
                     log_message "Montage des systèmes de fichiers réussi"
-                    send_gotify_notification "VPN Restauré" "Service VPN redémarré et montage des systèmes de fichiers effectués"
+                    send_gotify_notification "VPN Restauré" "Connexion VPN rétablie et montage des systèmes de fichiers effectués"
                 else
                     log_message "ERREUR : Échec du montage des systèmes de fichiers"
                     send_gotify_notification "VPN Montage Erreur" "Échec du montage des systèmes de fichiers après restauration VPN" 6
                     exit 1
                 fi
             else
-                log_message "ERREUR : Impossible de restaurer le service OpenVPN"
-                send_gotify_notification "VPN Erreur Critique" "Impossible de restaurer le service OpenVPN" 8
+                log_message "ERREUR : Impossible de restaurer la connexion VPN"
+                send_gotify_notification "VPN Erreur Critique" "Impossible de restaurer la connexion VPN" 8
                 exit 1
             fi
         else
-            log_message "ERREUR : Échec du redémarrage du service OpenVPN"
-            send_gotify_notification "VPN Erreur Redémarrage" "Impossible de redémarrer le service OpenVPN" 7
+            log_message "ERREUR : Échec de la restauration de la connexion VPN"
+            send_gotify_notification "VPN Erreur Restauration" "Impossible de restaurer la connexion VPN" 7
             exit 1
         fi
     else
-        # VPN est up
-        log_message "Service OpenVPN actif, aucune action requise"
+        # VPN est connecté
+        log_message "Connexion VPN active, aucune action requise"
         
         # Enregistrer le statut up
         echo "up" > "$STATUS_FILE"
         
+        debug_log "Fin du script - VPN actif"
         exit 0
     fi
 }
