@@ -96,6 +96,7 @@ check_vpn_connection() {
 restore_vpn_connection() {
     log_message "Tentative de restauration de la connexion VPN"
     
+    # Étape 1 : Tenter de déconnecter et reconnecter les sessions
     # Déconnecter toutes les sessions existantes
     openvpn3 sessions-list | grep Path | while read -r line; do
         session_path=$(echo "$line" | cut -d: -f2 | xargs)
@@ -111,13 +112,34 @@ restore_vpn_connection() {
     openvpn3 session-start --interface "$VPN_PROFILE_NAME"
     local connect_exit_code=$?
     
-    if [ $connect_exit_code -eq 0 ]; then
-        log_message "Reconnexion VPN réussie"
-        return 0
-    else
-        log_message "Échec de la reconnexion VPN"
-        return 1
+    # Étape 2 : Si la reconnexion échoue, tenter de redémarrer le service systemd
+    if [ $connect_exit_code -ne 0 ]; then
+        log_message "Échec de la reconnexion VPN via openvpn3, tentative de redémarrage du service systemd"
+        
+        # Redémarrer le service systemd
+        systemctl restart "$VPN_SERVICE"
+        local systemd_restart_code=$?
+        
+        if [ $systemd_restart_code -eq 0 ]; then
+            # Attendre la stabilisation
+            sleep 10
+            
+            # Vérifier à nouveau la connexion
+            if check_vpn_connection; then
+                log_message "Connexion VPN restaurée via service systemd"
+                return 0
+            else
+                log_message "Échec de restauration via service systemd"
+                return 1
+            fi
+        else
+            log_message "Échec du redémarrage du service systemd"
+            return 1
+        fi
     fi
+    
+    # Si la reconnexion via openvpn3 a réussi
+    return 0
 }
 
 # Fonction principale
