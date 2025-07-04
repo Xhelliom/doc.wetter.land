@@ -6,25 +6,73 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #da0666;
-  --ifm-color-primary-dark: #ad0666;
-  --ifm-color-primary-darker: #740666;
-  --ifm-color-primary-darkest: #500666;
-  --ifm-color-primary-light: #c43666;
-  --ifm-color-primary-lighter: #c66666;
-  --ifm-color-primary-lightest: #ee7666;
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* For dark mode */
 [data-theme='dark'] {
-  --ifm-color-primary: hsl(310, 68%, 45%);
-  --ifm-color-primary-dark: hsl(310, 68%, 41%);
-  --ifm-color-primary-darker: hsl(310, 68%, 38%);
-  --ifm-color-primary-darkest: hsl(310, 68%, 32%);
-  --ifm-color-primary-light: hsl(310, 68%, 50%);
-  --ifm-color-primary-lighter: hsl(310, 68%, 52%);
-  --ifm-color-primary-lightest: hsl(310, 68%, 59%);
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom styles for clickable section titles */
+h3 a {
+  transition: all 0.3s ease !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  margin: -8px -12px !important;
+  display: inline-block !important;
+}
+
+h3 a:hover {
+  background-color: rgba(66, 133, 244, 0.1) !important;
+  transform: translateX(5px) !important;
+  text-decoration: none !important;
+}
+
+h3 a[style*="color: #4285f4"]:hover {
+  background-color: rgba(66, 133, 244, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2) !important;
+}
+
+h3 a[style*="color: #34a853"]:hover {
+  background-color: rgba(52, 168, 83, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(52, 168, 83, 0.2) !important;
+}
+
+h3 a[style*="color: #ea4335"]:hover {
+  background-color: rgba(234, 67, 53, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(234, 67, 53, 0.2) !important;
+}
+
+/* Add a subtle indicator that the title is clickable */
+h3 a::after {
+  content: "→";
+  opacity: 0;
+  margin-left: 10px;
+  transition: opacity 0.3s ease;
+  font-size: 0.8em;
+}
+
+h3 a:hover::after {
+  opacity: 0.7;
+}
+
+/* Remove old navigation card styles (no longer needed) */
+.nav-card {
+  display: none;
 }

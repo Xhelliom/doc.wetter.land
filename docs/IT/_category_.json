@@ -1,8 +1,8 @@
 {
-  "label": "IT",
+  "label": "💻 Astuces & Outils IT",
   "position": 2,
   "link": {
     "type": "generated-index",
-    "description": "Les autres astuces IT"
+    "description": "Astuces pratiques, outils et configurations pour l'IT"
   }
 }

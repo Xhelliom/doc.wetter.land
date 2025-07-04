@@ -1,74 +1,193 @@
 ---
 sidebar_position: 2
-sidebar_label: Création du cluster k3s (amd et arm)
+sidebar_label: 🏗️ Création du cluster K3s (AMD et ARM)
 ---
 
-# Prérequis en terme de distribution
+# 🏗️ Création d'un cluster K3s multi-architecture
 
-Pour ma part j'utilise principalement Debian (dernière version), j'ai remarqué qu'avec Ubuntu j'avais des problème sur le network manager qui bloquait des requetes DNS dans mes souvenirs. je devais trafiquer le network manager pour résoudre ça.
-J'utilise aussi des Raspberry Pi 5. pour cela, des manipent peuvent être nécessaires, j'y reviens juste en dessous.
+Guide complet pour créer un cluster K3s fonctionnel sur architectures AMD64 et ARM64.
 
-## Raspberry Pi 5, prérequis particulier
+## 🖥️ Distribution recommandée
 
-### Network
+### Choix principal : Debian
 
-Dans le cas où on utilise Raspberry Pi OS, et qu'on décide de le connecter en Wifi, il faut activer le mode promiscuous, pour cela :
+:::tip Recommandation
 
-`ifconfig wlan0 promisc` mais ça ne reste pas après reboot.
+J'utilise principalement **Debian** (dernière version stable) pour mes déploiements K3s.
 
+:::
 
-J'ai donc utilisé un script (trouvé ici : https://askubuntu.com/questions/1355974/how-to-enable-promiscuous-mode-permanently-on-a-nic-managed-by-networkmanager)
-```bash
-$ sudo bash -c 'cat > /etc/systemd/system/bridge-promisc.service' <<'EOS'
+:::warning Problème connu avec Ubuntu
+
+Ubuntu peut présenter des problèmes avec NetworkManager qui bloque certaines requêtes DNS. Des modifications manuelles sont nécessaires pour résoudre ce problème.
+
+:::
+
+## 🥧 Configuration spécifique Raspberry Pi 5
+
+### Prérequis réseau
+
+Pour les Raspberry Pi connectés en **Wi-Fi**, le mode promiscuous doit être activé :
+
+```bash title="Activation temporaire du mode promiscuous"
+ifconfig wlan0 promisc
+```
+
+:::warning Persistance
+
+Cette commande n'est pas persistante après redémarrage. Une solution automatique est nécessaire.
+
+:::
+
+### Solution permanente avec systemd
+
+Script basé sur [cette solution StackOverflow](https://askubuntu.com/questions/1355974/how-to-enable-promiscuous-mode-permanently-on-a-nic-managed-by-networkmanager) :
+
+```bash title="Création du service systemd"
+sudo bash -c 'cat > /etc/systemd/system/bridge-promisc.service' <<'EOS'
 [Unit]
-Description=Makes interfaces run in promiscuous mode at boot
+Description=Active le mode promiscuous au démarrage
 After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/ip link set dev eth1 promisc on
-ExecStart=/usr/sbin/ip link set dev eth2 promisc on
+ExecStart=/usr/sbin/ip link set dev wlan0 promisc on
 TimeoutStartSec=0
 RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target
 EOS
-$ sudo systemctl enable bridge-promisc
 ```
 
-### Kernel
-Deuxième choses, certains containeurs (ex: Redis) utilise des pages de 16k et raspberry Pi OS limite à 4K.
-
-Il faut donc rajotuer la ligne `kernel=kernel8.img` dans `/boot/config.txt`.
-
-### Application manquantes ou équivalent
-
-Si vous essayer de créer un déploiement ou pod avec un volume NFS, vous aurez peut-être un message.
-Exemple de volume NFS monté :
-```
- volumes:
-    - name: vol1
-      nfs:
-        server: 192.168.1.xx
-        path: /mnt/xxx
+```bash title="Activation du service"
+sudo systemctl enable bridge-promisc
 ```
 
-Il faut activer le service rpcbind
+:::note Adaptation nécessaire
 
+Adaptez le nom de l'interface (`wlan0`) selon votre configuration.
+
+:::
+
+## 🔧 Configuration kernel Raspberry Pi
+
+### Problème des pages mémoire
+
+Certains conteneurs (comme **Redis**) utilisent des pages de 16K, mais Raspberry Pi OS limite à 4K par défaut.
+
+:::danger Erreur fréquente
+
+Sans cette configuration, des conteneurs peuvent échouer au démarrage avec des erreurs mémoire.
+
+:::
+
+### Solution
+
+```bash title="Édition du fichier de configuration"
+sudo nano /boot/config.txt
 ```
-service rpcbind start
 
-systemctl enable rpcbind
+Ajoutez la ligne suivante :
+
+```txt title="/boot/config.txt"
+kernel=kernel8.img
 ```
 
-Si vous ne faites pas ça, les pods ne vont pas pouvoir monter le volume.
+:::tip Redémarrage requis
 
+Un redémarrage est nécessaire pour appliquer cette modification.
 
-# Rajouter du Cgroup :
+:::
 
-Rajouter à la suite du fichier /boot/cmdline.txt :
+## 🗂️ Support NFS
 
+### Prérequis pour les volumes NFS
+
+Si vous utilisez des volumes NFS dans vos pods :
+
+```yaml title="Exemple de volume NFS"
+volumes:
+  - name: vol1
+    nfs:
+      server: 192.168.1.100
+      path: /mnt/shared-data
 ```
+
+### Configuration requise
+
+```bash title="Installation et activation de rpcbind"
+sudo apt update
+sudo apt install nfs-common
+sudo systemctl enable rpcbind
+sudo systemctl start rpcbind
+```
+
+:::warning Symptôme d'erreur
+
+Sans `rpcbind`, les pods restent en état `Pending` avec des erreurs de montage NFS.
+
+:::
+
+## 🧮 Configuration Cgroup
+
+### Activation des cgroups mémoire
+
+Ajoutez à la fin du fichier `/boot/cmdline.txt` :
+
+```txt title="/boot/cmdline.txt"
 cgroup_memory=1 cgroup_enable=memory
 ```
+
+:::note Format important
+
+Ajoutez ces paramètres **à la suite** de la ligne existante, séparés par des espaces. Ne créez pas de nouvelle ligne.
+
+:::
+
+### Vérification
+
+Après redémarrage, vérifiez l'activation :
+
+```bash title="Vérification des cgroups"
+cat /proc/cgroups | grep memory
+```
+
+:::tip Résultat attendu
+
+Vous devriez voir une ligne avec `memory` et `1` (activé).
+
+:::
+
+## 🚀 Prochaines étapes
+
+Une fois ces prérequis configurés :
+
+1. **Redémarrez** votre système
+2. **Vérifiez** les configurations
+3. **Procédez** à l'installation K3s
+4. **Configurez** votre cluster
+
+:::note Articles connexes
+
+- [Installation serveur/node K3s](./installation-server-node-k3s.md)
+- [Load balancer NGINX](./loadbalancer-nginx.md)
+
+:::
+
+## 📝 Checklist finale
+
+Avant d'installer K3s, vérifiez :
+
+- [ ] **Distribution** : Debian installée
+- [ ] **Réseau** : Mode promiscuous activé (Wi-Fi)
+- [ ] **Kernel** : Configuration 16K pages (Raspberry Pi)
+- [ ] **NFS** : rpcbind installé et activé
+- [ ] **Cgroups** : Mémoire activée
+- [ ] **Système** : Redémarré après modifications
+
+:::tip Prêt pour K3s
+
+Une fois tous ces prérequis remplis, votre système est prêt pour l'installation K3s !
+
+:::

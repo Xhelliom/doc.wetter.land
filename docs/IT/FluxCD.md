@@ -1,83 +1,158 @@
 ---
 sidebar_position: 2
-sidebar_label: Déployer ses applications avec FluxCD
+sidebar_label: 🚀 Déployer ses applications avec FluxCD
 ---
 
-# Prérequis
+# 🚀 Déploiement continu avec FluxCD
 
-Il faut avoir un cluster kubernetes (évidemment) et un repo github qui hébergera les configurations des déploiement.
-Il faudra aussi avoir un jeton d'accès pour ce repo depuis github.
+FluxCD est un outil de déploiement continu (GitOps) qui permet de déployer et maintenir automatiquement vos applications sur Kubernetes en se basant sur un dépôt Git.
 
-# FluxCD
+## 📋 Prérequis
 
-FluxCD permet de faire du déploiment d'application sur Kubernetes mais aussi de les maintenir à jour.
-Je me base essentiellement sur la documentation de FluxCD mais en essayant de l'expliquer de facon à ce que des gens normaux comprennent.
+:::note Pré-requis obligatoires
 
-## Installation du CLI Flux :
+- **Cluster Kubernetes** fonctionnel
+- **Dépôt GitHub** pour héberger les configurations de déploiement
+- **Token d'accès** GitHub avec les permissions appropriées
 
-Sources : https://fluxcd.io/flux/installation/#install-the-flux-cli
+:::
 
-The Flux CLI is available as a binary executable for all major platforms, the binaries can be downloaded from GitHub releases page.
+## 🎯 Qu'est-ce que FluxCD ?
 
-`choco install flux`
-To configure your shell to load flux bash completions add to your profile:
+FluxCD implémente le pattern **GitOps** pour Kubernetes :
+- 📦 **Déploiement automatique** des applications
+- 🔄 **Synchronisation continue** avec Git
+- 📈 **Mise à jour automatique** des images
+- 🛡️ **Gestion des rollbacks** en cas d'erreur
 
-`. <(flux completion bash)`
+:::tip Avantages du GitOps
 
+- **Git comme source unique de vérité**
+- **Traçabilité complète** des changements
+- **Rollback facile** via l'historique Git
+- **Déploiement déclaratif** et prévisible
 
-## Initialisation du repo github en liens avec notre cluster kubernetes
+:::
 
-J'utilise le "Flux Bootstrap for Github", comprendre que c'est une commande qui permet d'initialiser fluxCD et mettre en liens un repo github et notre cluster.
-Cette commande va créer des PODS sur notre cluster kubernetes.
+## 🛠️ Installation du CLI Flux
 
-Pour infos, ca peut etre relancer pour mettre à jour, etc. De toute manière, l'ensemble des infos sont stocké sur le repo github et donc détruire les pods, et refaire ça n'a pas l'air d'avoir de conséquences problématiques.
+:::info Installation recommandée
 
-la commande que j'éxécute est la suivante : 
+La meilleure façon d'installer Flux CLI dépend de votre système d'exploitation.
 
-```bash
+:::
 
-flux bootstrap github \
-    --components-extra=image-reflector-controller,image-automation-controller \
-  --token-auth \
-  --owner=my-github-username \
-  --repository=my-repository-name \
-  --branch=main \
-  --path=clusters/production\
-  --personal
+### Windows (Chocolatey)
+
+```bash title="Installation via Chocolatey"
+choco install flux
 ```
 
-A noter que le path peut etre modifié, si vous géré plusieurs clusters dans ce meme repo, on peut très bien imaginé un chemin clusters/aws etc.
+### Configuration du shell
 
-## Structure du repo fluxCD
+Pour activer l'auto-complétion bash, ajoutez à votre profil :
 
-De mon côté la structure que j'utilise est celle-ci, mais je pense qu'on fait comme on le souhaite :
+```bash title="~/.bashrc ou ~/.zshrc"
+. <(flux completion bash)
+```
 
-REPO
-└── clusters
-    ├── production
-    │   ├── (namespace)
-    │   ├── default
-    │   │   ├── redis
+:::note Source officielle
+
+Documentation complète : https://fluxcd.io/flux/installation/#install-the-flux-cli
+
+:::
+
+## 🔧 Initialisation du dépôt GitHub
+
+La commande `flux bootstrap` configure FluxCD et lie votre dépôt GitHub au cluster Kubernetes.
+
+:::warning Important
+
+Cette commande peut être relancée pour mettre à jour FluxCD. Toutes les configurations sont stockées dans Git, donc la suppression des pods n'a pas d'impact négatif.
+
+:::
+
+```bash title="Commande d'initialisation FluxCD"
+flux bootstrap github \
+    --components-extra=image-reflector-controller,image-automation-controller \
+    --token-auth \
+    --owner=my-github-username \
+    --repository=my-repository-name \
+    --branch=main \
+    --path=clusters/production \
+    --personal
+```
+
+### 📝 Explication des paramètres
+
+| Paramètre | Description |
+|-----------|-------------|
+| `--components-extra` | Ajoute les contrôleurs pour la gestion automatique des images |
+| `--token-auth` | Utilise l'authentification par token GitHub |
+| `--owner` | Nom d'utilisateur GitHub |
+| `--repository` | Nom du dépôt |
+| `--branch` | Branche à surveiller (généralement `main`) |
+| `--path` | Chemin dans le dépôt pour ce cluster |
+| `--personal` | Indique que c'est un dépôt personnel |
+
+:::tip Gestion multi-cluster
+
+Vous pouvez gérer plusieurs clusters dans le même dépôt :
+- `clusters/production`
+- `clusters/staging`
+- `clusters/development`
+
+:::
+
+## 📁 Structure du dépôt FluxCD
+
+Voici la structure recommandée pour organiser vos déploiements :
+
+```
+REPO/
+└── clusters/
+    ├── production/
+    │   ├── flux-system/          # Configuration FluxCD
+    │   ├── default/              # Namespace par défaut
+    │   │   ├── redis/
     │   │   │   ├── redis.deployment.yml
     │   │   │   ├── redis.service.yml
-    │   │   │   ├── redis.ingress.yml    
-    │   │   │   ├── redis.certificate.yml    
-    │   │   │   ├── redis.policy.yml       
+    │   │   │   ├── redis.ingress.yml
+    │   │   │   ├── redis.certificate.yml
+    │   │   │   ├── redis.policy.yml
     │   │   │   └── redis.registry.yml
-    │   │   └── (etc.)
-    │   ├── flux-system
-    │   ├── public
-    │   └── (etc.)
-    └── staging
+    │   │   └── (autres applications...)
+    │   ├── public/               # Applications publiques
+    │   └── (autres namespaces...)
+    └── staging/                  # Environnement de test
+```
 
-On retrouve pour l'exemple de redis, les fichiers yaml classiques (ici: deployment, service, ingress). Il pourrait y en avoir d'autre si nécessaire. A comprendre que flux lit ces fichiers et créé les ressources ou les met à jours, en fonction de ce qui a dedans le fichier YAML et non le nom du fichier.
+:::note Organisation flexible
 
-Ce qui est nécessaire de rajouter en plus pour que fluxCD automatise les mises à jours sont les fichiers de registre (registry.yml) et les certificats (policy.yml) ainsi qu'une annotation sur le fichier deployment.yml.
+Cette structure est **recommandée** mais peut être adaptée selon vos besoins. FluxCD lit le contenu des fichiers YAML, pas leur nom.
 
-## Rxemple de fichiers YAML
+:::
 
-redis.policy.yml 
-``` yaml
+## 📄 Fichiers de configuration
+
+Pour que FluxCD gère automatiquement les mises à jour d'images, vous devez créer des fichiers spécifiques :
+
+### 🔍 Registre d'images (`redis.registry.yml`)
+
+```yaml title="redis.registry.yml"
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: redis
+  namespace: flux-system
+spec:
+  image: redis
+  interval: 5m0s
+```
+
+### 📋 Politique de version (`redis.policy.yml`)
+
+```yaml title="redis.policy.yml"
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
@@ -91,22 +166,9 @@ spec:
       range: 6.0.x
 ```
 
-redis.registry.yml
+### 🚀 Déploiement (`redis.deployment.yml`)
 
-``` yaml
-apiVersion: image.toolkit.fluxcd.io/v1beta2
-kind: ImageRepository
-metadata:
-  name: redis
-  namespace: flux-system
-spec:
-  image: redis
-  interval: 5m0s
-```
-
-redis.deployment.yml
-
-```yaml
+```yaml title="redis.deployment.yml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -116,29 +178,65 @@ spec:
   selector:
     matchLabels:
       app: redis
-      namespace: default
   replicas: 1
   template:
     metadata:
       labels:
         app: redis
-        namespace: default
     spec:
       containers:
       - name: redis
-        namespace: default
         image: redis:6.0.20 # {"$imagepolicy": "flux-system:redis"}
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         ports:
-        - containerPort: 80
+        - containerPort: 6379
 ```
 
-Ce qu'il faut faire correspondre, c'est le nom de l'image dans le registre, et le nom de l'image dans le fichier YAML.
+:::warning Annotation cruciale
 
-## Reconcialiation manuelle :
+L'annotation `# {"$imagepolicy": "flux-system:redis"}` est **essentielle** pour que FluxCD puisse mettre à jour automatiquement l'image.
 
-Se placer dans le repo git : 
-`flux reconcile kustomization flux-system --with-source` 
+:::
+
+### 🔗 Correspondance des noms
+
+:::tip Règle importante
+
+Les noms suivants **doivent correspondre** :
+- Nom de l'image dans le registre : `redis`
+- Nom dans `imageRepositoryRef` : `redis`
+- Nom dans l'annotation imagepolicy : `redis`
+
+:::
+
+## 🔄 Réconciliation manuelle
+
+Si vous voulez forcer une synchronisation immédiate :
+
+```bash title="Commande de réconciliation"
+flux reconcile kustomization flux-system --with-source
+```
+
+:::note Emplacement
+
+Exécutez cette commande depuis le répertoire de votre dépôt Git local.
+
+:::
+
+## 🎯 Prochaines étapes
+
+Une fois FluxCD configuré, vos déploiements sont automatisés :
+
+1. **Modifiez** vos fichiers YAML dans Git
+2. **Commitez** et **pushez** vos changements
+3. **FluxCD détecte** automatiquement les modifications
+4. **Déploiement** automatique sur le cluster
+
+:::tip Monitoring
+
+Utilisez `flux get all` pour surveiller l'état de vos déploiements FluxCD.
+
+:::

@@ -1,8 +1,8 @@
 {
-  "label": "K3S",
+  "label": "🚀 Kubernetes & K3s",
   "position": 1,
   "link": {
     "type": "generated-index",
-    "description": "Les principales informations à propos de K3S"
+    "description": "Installation, configuration et gestion de clusters K3s"
   }
 }
